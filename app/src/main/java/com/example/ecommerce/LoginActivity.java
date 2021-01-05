@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,6 +25,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText InputPhoneNumber, InputPassword;
     private Button LoginButton;
     private ProgressDialog loadingBar;
+    private TextView AdminLink, NotAdminLink;
     private String parentDbName = "Users";
 
 
@@ -35,12 +37,36 @@ public class LoginActivity extends AppCompatActivity {
         LoginButton = (Button) findViewById(R.id.login_btn);
         InputPassword = (EditText) findViewById(R.id.login_password_input);
         InputPhoneNumber = (EditText) findViewById(R.id.login_phone_number_input);
+        AdminLink = (TextView)findViewById(R.id.admin_panel_link);
+        NotAdminLink = (TextView)findViewById(R.id.not_admin_panel_link);
+
         loadingBar = new ProgressDialog(this);
+
+
 
         LoginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 LoginUser();
+            }
+        });
+
+        AdminLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LoginButton.setText("Login Admin");
+                AdminLink.setVisibility(View.INVISIBLE);
+                NotAdminLink.setVisibility(View.VISIBLE);
+                parentDbName = "Admins";
+            }
+        });
+        NotAdminLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LoginButton.setText("Login Admin");
+                AdminLink.setVisibility(View.VISIBLE);
+                NotAdminLink.setVisibility(View.INVISIBLE);
+                parentDbName = "Users";
             }
         });
     }
