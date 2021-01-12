@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "717822132693",
+    "firebase_url": "https://ecommerce-8b4c8-default-rtdb.firebaseio.com",
     "project_id": "ecommerce-8b4c8",
     "storage_bucket": "ecommerce-8b4c8.appspot.com"
   },
@@ -19,6 +20,14 @@
           "android_info": {
             "package_name": "com.example.ecommerce",
             "certificate_hash": "13b5a246df62fae0df4c979a5ffa4e2855c7183e"
+          }
+        },
+        {
+          "client_id": "717822132693-f7taqa0pm7qum89idp5rc0lu3ga6dnph.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ecommerce",
+            "certificate_hash": "343649a20c82201790e582b4a8d183cdc87ed19c"
           }
         },
         {
