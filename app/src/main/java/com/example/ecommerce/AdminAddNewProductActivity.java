@@ -10,11 +10,24 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 
 public class AdminAddNewProductActivity extends AppCompatActivity {
 
@@ -24,7 +37,9 @@ public class AdminAddNewProductActivity extends AppCompatActivity {
     private EditText InputProductName, InputProductDescription, InputProductPrice;
     private static final int GalleryPick = 1;
     private Uri ImageUri;
-    private String productRandomKey;
+    private String productRandomKey, downloadImageUri;
+    private StorageReference ProductImagesRef;
+    private DatabaseReference ProductsRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +47,11 @@ public class AdminAddNewProductActivity extends AppCompatActivity {
         setContentView(R.layout.activity_admin_add_new_product);
 
         CategoryName = getIntent().getExtras().get("category").toString();
-        AddNewProductButton = (Button) findViewById(R.id.add_new_product);
+        ProductImagesRef = FirebaseStorage.getInstance().getReference().child("Product Images");
+        ProductsRef = FirebaseDatabase.getInstance().getReference().child("Products");
+
+
+                AddNewProductButton = (Button) findViewById(R.id.add_new_product);
         InputProductImage = (ImageView) findViewById(R.id.select_product_image);
         InputProductName = (EditText) findViewById(R.id.product_name);
         InputProductPrice = (EditText) findViewById(R.id.product_price);
@@ -106,5 +125,78 @@ public class AdminAddNewProductActivity extends AppCompatActivity {
         saveCurrentTime = currentTime.format(calendar.getTime());
 
         productRandomKey = saveCurrentDate + saveCurrentTime;
+
+        final StorageReference filePath = ProductImagesRef.child(ImageUri.getLastPathSegment() +
+                productRandomKey + ".jpg");
+
+        final UploadTask uploadTask = filePath.putFile(ImageUri);
+
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+                String message = e.toString();
+                Toast.makeText(AdminAddNewProductActivity.this,
+                        "Error:" + message , Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Toast.makeText(AdminAddNewProductActivity.this,
+                        "Product Image Uploaded Successfully", Toast.LENGTH_SHORT).show();
+
+                Task<Uri> uriTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                    @Override
+                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                        if (task.isSuccessful()){
+                            throw task.getException();
+                        }
+                     downloadImageUri = filePath.getDownloadUrl().toString();
+                        return filePath.getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if (task.isSuccessful()){
+                            Toast.makeText(AdminAddNewProductActivity.this,
+                                    "Got the Product image Uri Successfully...", Toast.LENGTH_SHORT).show();
+                            SaveProductInfoToDatabase();
+                        }
+                    }
+                });
+            }
+        });
+
+
     }
+
+    private void SaveProductInfoToDatabase() {
+        HashMap<String, Object> productMap = new HashMap<>();
+        productMap.put("pid", productRandomKey);
+        productMap.put("date", saveCurrentDate);
+        productMap.put("time", saveCurrentTime);
+        productMap.put("image", downloadImageUri);
+        productMap.put("category", CategoryName);
+        productMap.put("price", Price);
+        productMap.put("pname", Pname);
+
+        ProductsRef.child(productRandomKey).updateChildren(productMap)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                           Toast.makeText(AdminAddNewProductActivity.this,
+                                   "Product is added Successfully...", Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            String message = task.getException().toString();
+                            Toast.makeText(AdminAddNewProductActivity.this,
+                                    "Error:"+ message , Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+
+    }
+
 }
