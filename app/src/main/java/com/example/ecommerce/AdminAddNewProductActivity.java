@@ -1,5 +1,6 @@
 package com.example.ecommerce;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ public class AdminAddNewProductActivity extends AppCompatActivity {
 
     private String CategoryName, Description, Price, Pname, saveCurrentDate, saveCurrentTime;
     private Button AddNewProductButton;
+    private ProgressDialog loadingBar;
     private ImageView InputProductImage;
     private EditText InputProductName, InputProductDescription, InputProductPrice;
     private static final int GalleryPick = 1;
@@ -55,6 +57,7 @@ public class AdminAddNewProductActivity extends AppCompatActivity {
         InputProductImage = (ImageView) findViewById(R.id.select_product_image);
         InputProductName = (EditText) findViewById(R.id.product_name);
         InputProductPrice = (EditText) findViewById(R.id.product_price);
+        loadingBar = new ProgressDialog(this);
 
         InputProductImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,6 +119,10 @@ public class AdminAddNewProductActivity extends AppCompatActivity {
     }
 
     private void StoreProductInformation() {
+        loadingBar.setTitle("Adding new Product");
+        loadingBar.setMessage("Please wait, while we are adding the new product.");
+        loadingBar.setCanceledOnTouchOutside(false);
+        loadingBar.show();
         Calendar calendar = Calendar.getInstance();
 
         SimpleDateFormat currentDate = new SimpleDateFormat("MMM dd, yyyy");
@@ -138,6 +145,7 @@ public class AdminAddNewProductActivity extends AppCompatActivity {
                 String message = e.toString();
                 Toast.makeText(AdminAddNewProductActivity.this,
                         "Error:" + message , Toast.LENGTH_SHORT).show();
+                loadingBar.dismiss();
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -185,10 +193,14 @@ public class AdminAddNewProductActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
+                            Intent intent = new Intent(AdminAddNewProductActivity.this, AdminCategoryActivity.class);
+                            startActivity(intent);
+                            loadingBar.dismiss();
                            Toast.makeText(AdminAddNewProductActivity.this,
                                    "Product is added Successfully...", Toast.LENGTH_SHORT).show();
                         }
                         else {
+                            loadingBar.dismiss();
                             String message = task.getException().toString();
                             Toast.makeText(AdminAddNewProductActivity.this,
                                     "Error:"+ message , Toast.LENGTH_SHORT).show();
