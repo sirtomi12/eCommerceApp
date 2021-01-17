@@ -63,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
         NotAdminLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LoginButton.setText("Login Admin");
+                LoginButton.setText("Login");
                 AdminLink.setVisibility(View.VISIBLE);
                 NotAdminLink.setVisibility(View.INVISIBLE);
                 parentDbName = "Users";

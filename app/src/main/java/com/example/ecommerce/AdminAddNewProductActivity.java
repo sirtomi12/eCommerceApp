@@ -168,7 +168,7 @@ public class AdminAddNewProductActivity extends AppCompatActivity {
                         if (task.isSuccessful()){
 
                             downloadImageUri = task.getResult().toString();
-                            
+
                             Toast.makeText(AdminAddNewProductActivity.this,
                                     "Got the Product image Uri Successfully...", Toast.LENGTH_SHORT).show();
                             SaveProductInfoToDatabase();
@@ -196,7 +196,8 @@ public class AdminAddNewProductActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
-                            Intent intent = new Intent(AdminAddNewProductActivity.this, AdminCategoryActivity.class);
+                            Intent intent = new Intent(AdminAddNewProductActivity.this,
+                                    AdminCategoryActivity.class);
                             startActivity(intent);
                             loadingBar.dismiss();
                            Toast.makeText(AdminAddNewProductActivity.this,
